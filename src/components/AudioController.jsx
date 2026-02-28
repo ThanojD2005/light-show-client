@@ -1,6 +1,6 @@
 import React, { useRef, useState, useCallback, useEffect } from 'react';
 import { useAudioAnalyzer } from '../hooks/useAudioAnalyzer';
-import { useShow } from '../context/ShowContext';
+import { useShow } from '../hooks/useShow';
 import {
     Upload, Play, Pause, Music, Volume2, Loader2, CheckCircle,
     Circle, Square, Save, Trash2, RadioTower, Zap, Layers, X, Check
