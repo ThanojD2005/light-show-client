@@ -349,20 +349,6 @@ const AdminDashboard = () => {
                 </div>
             </main>
 
-            {/* Footer Stats mock */}
-            <footer className="mt-16 text-center">
-                <div className="inline-flex items-center gap-6 bg-white/5 border border-white/10 rounded-full px-8 py-4 backdrop-blur-md">
-                    <div className="flex flex-col items-center">
-                        <span className="text-gray-500 text-xs font-bold tracking-widest uppercase mb-1">Latency</span>
-                        <span className="text-green-400 font-mono font-bold text-lg">2ms</span>
-                    </div>
-                    <div className="w-px h-8 bg-white/10"></div>
-                    <div className="flex flex-col items-center">
-                        <span className="text-gray-500 text-xs font-bold tracking-widest uppercase mb-1">Target Audience</span>
-                        <span className="text-white font-mono font-bold text-lg">1,248</span>
-                    </div>
-                </div>
-            </footer>
         </div>
     );
 };
