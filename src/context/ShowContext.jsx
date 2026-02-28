@@ -24,7 +24,18 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
     socketRef.current = io(SOCKET_SERVER_URL, { parser });
 
     socketRef.current.on('connect', () => {
-      console.log('Connected to show server');
+      console.log('✅ Connected to show server');
+    });
+
+    socketRef.current.on('connect_error', (err) => {
+      console.error('❌ Connection Error:', err.message);
+      // Log more details if available
+      if (err.description) console.error('Description:', err.description);
+      if (err.context) console.error('Context:', err.context);
+    });
+
+    socketRef.current.on('error', (err) => {
+      console.error('❌ Socket Error:', err);
     });
 
     // Listen for show state updates from the server
