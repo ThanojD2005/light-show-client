@@ -1,19 +1,17 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 
-// Define the initial show state
 const initialShowState = {
-  isActive: false, // Is the show currently running?
-  color: '#000000', // Current background color
-  effect: 'none',   // 'none', 'strobe', 'pulse'
-  id: 1,          // Used to force re-renders/trigger effects on the same color
+  isActive: false,
+  color: '#000000',
+  effect: 'none',
+  id: 1,
 };
 
-const ShowContext = createContext(null);
+export const ShowContext = createContext(null);
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
 
-// Provider Component
 export function ShowProvider({ children, isAdmin = false }) {
   const [showState, setShowState] = useState(initialShowState);
   const socketRef = useRef(null);
@@ -34,9 +32,7 @@ export function ShowProvider({ children, isAdmin = false }) {
     });
 
     return () => {
-      if (socketRef.current) {
-        socketRef.current.disconnect();
-      }
+      if (socketRef.current) socketRef.current.disconnect();
     };
   }, []);
 
@@ -60,13 +56,4 @@ export function ShowProvider({ children, isAdmin = false }) {
       {children}
     </ShowContext.Provider>
   );
-}
-
-// Hook
-export function useShow() {
-  const context = useContext(ShowContext);
-  if (!context) {
-    throw new Error('useShow must be used within a ShowProvider');
-  }
-  return context;
 }

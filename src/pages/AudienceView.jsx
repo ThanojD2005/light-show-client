@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useShow } from '../context/ShowContext';
+import { useShow } from '../hooks/useShow';
 
 const AudienceView = () => {
     const { showState } = useShow();

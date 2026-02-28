@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { useShow } from '../context/ShowContext';
+import { useShow } from '../hooks/useShow';
 import AudioController from '../components/AudioController';
 import { Play, Pause, Square, Zap, Radio, Moon, Sun, Power, Edit2 } from 'lucide-react';
 
@@ -93,12 +93,13 @@ const AdminDashboard = () => {
     const handleColorEdit = (e) => {
         const newValue = e.target.value;
         if (editingIndex !== null) {
+            const oldColor = palette[editingIndex].value;
             const newPalette = [...palette];
             newPalette[editingIndex] = { ...newPalette[editingIndex], value: newValue };
             setPalette(newPalette);
 
-            // If the edited color was the selected one, update it
-            if (selectedColor === palette[editingIndex].value) {
+            // If the edited color was the currently selected one OR active, update it
+            if (selectedColor === oldColor) {
                 setSelectedColor(newValue);
                 if (showState.isActive) {
                     triggerStateUpdate({ color: newValue, id: Date.now() });
