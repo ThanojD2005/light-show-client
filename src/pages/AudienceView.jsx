@@ -13,8 +13,13 @@ const AudienceView = () => {
     }, []);
 
     useEffect(() => {
-        if (showState.isActive && showState.color) {
-            setLocalColor(showState.color);
+        if (showState.isActive && (showState.color || showState.effect === 'rainbow')) {
+            // For rainbow, we need a base color for hue-rotate to work
+            if (showState.effect === 'rainbow' && (showState.color === '#000000' || !showState.color)) {
+                setLocalColor('#ff0000'); // Base red for rainbow
+            } else {
+                setLocalColor(showState.color);
+            }
         } else {
             setLocalColor('#000000');
         }
@@ -28,6 +33,14 @@ const AudienceView = () => {
                 classes += ' animate-strobe';
             } else if (showState.effect === 'pulse') {
                 classes += ' animate-pulse-fast';
+            } else if (showState.effect === 'glitch') {
+                classes += ' animate-glitch';
+            } else if (showState.effect === 'rainbow') {
+                classes += ' animate-rainbow';
+            } else if (showState.effect === 'blink') {
+                classes += ' animate-blink';
+            } else if (showState.effect === 'breathe') {
+                classes += ' animate-breathe';
             }
         }
 
