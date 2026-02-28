@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
-import parser from 'socket.io-msgpack-parser';
 
 // Define the initial show state
 const initialShowState = {
@@ -20,8 +19,8 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Initialize Socket.io connection with binary parser for efficiency
-    socketRef.current = io(SOCKET_SERVER_URL, { parser });
+    // Initialize Socket.io connection
+    socketRef.current = io(SOCKET_SERVER_URL);
 
     socketRef.current.on('connect', () => {
       console.log('✅ Connected to show server');
