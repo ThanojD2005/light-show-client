@@ -12,34 +12,21 @@ const AudienceView = () => {
         return () => clearTimeout(t);
     }, []);
 
-    const [localEffect, setLocalEffect] = useState('none');
-
     useEffect(() => {
         if (showState.isActive && showState.color) {
             setLocalColor(showState.color);
-            setLocalEffect(showState.effect || 'none');
-
-            // Optimization: If a duration is provided, reset the effect locally after that time
-            // This allows the server to avoid sending an "OFF" message
-            if (showState.duration) {
-                const timer = setTimeout(() => {
-                    setLocalEffect('none');
-                }, showState.duration);
-                return () => clearTimeout(timer);
-            }
         } else {
             setLocalColor('#000000');
-            setLocalEffect('none');
         }
-    }, [showState.isActive, showState.color, showState.id, showState.duration, showState.effect]);
+    }, [showState.isActive, showState.color, showState.id]);
 
     const getContainerClasses = () => {
         let classes = 'min-h-screen w-full flex flex-col items-center justify-center transition-colors duration-[150ms] overflow-hidden fixed inset-0';
 
         if (showState.isActive) {
-            if (localEffect === 'strobe') {
+            if (showState.effect === 'strobe') {
                 classes += ' animate-strobe';
-            } else if (localEffect === 'pulse') {
+            } else if (showState.effect === 'pulse') {
                 classes += ' animate-pulse-fast';
             }
         }
@@ -70,7 +57,7 @@ const AudienceView = () => {
                     <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tighter text-white drop-shadow-2xl">
                         STAND BY
                     </h1>
-                    <p className="text-gray-400 font-medium tracking-wide max-w-sm mx-auto text-sm leading-relaxed mb-12 opacity-80">
+                    <p className="text-gray-400 font-medium tracking-wide max-sm mx-auto text-sm leading-relaxed mb-12 opacity-80">
                         Please keep this tab open and your device awake. Maximize your screen brightness for the best experience.
                     </p>
 

@@ -6,7 +6,7 @@ const initialShowState = {
   isActive: false, // Is the show currently running?
   color: '#000000', // Current background color
   effect: 'none',   // 'none', 'strobe', 'pulse'
-  id: 0,          // Used to force re-renders/trigger effects on the same color
+  id: 1,          // Used to force re-renders/trigger effects on the same color
 };
 
 const ShowContext = createContext(null);
@@ -18,23 +18,16 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Initialize Socket.io connection
     socketRef.current = io(SOCKET_SERVER_URL);
 
     socketRef.current.on('connect', () => {
-      console.log('✅ Connected to show server');
+      console.log('Connected to show server');
     });
 
-    socketRef.current.on('connect_error', (err) => {
-      console.error('❌ Connection Error:', err.message);
-    });
-
-    // Listen for show state updates from the server
     socketRef.current.on('SHOW_STATE_UPDATE', (updatedState) => {
       setShowState(updatedState);
     });
 
-    // Clean up on unmount
     return () => {
       if (socketRef.current) {
         socketRef.current.disconnect();
@@ -42,19 +35,22 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
     };
   }, []);
 
-  // Method for the Admin to blast new states
   const triggerStateUpdate = useCallback((newStateUpdates) => {
-    if (!isAdmin || !socketRef.current) return;
+    if (!isAdmin) return;
 
-    // Create a complete sync point
-    const id = Date.now();
-    const payload = { ...newStateUpdates, id };
+    setShowState((prevState) => {
+      const updatedState = {
+        ...prevState,
+        ...newStateUpdates,
+        id: Date.now()
+      };
 
-    // 1. Emit to server (Server will broadcast to everyone, including Admin)
-    socketRef.current.emit('ADMIN_UPDATE', payload);
+      if (socketRef.current) {
+        socketRef.current.emit('ADMIN_UPDATE', updatedState);
+      }
 
-    // 2. Optimistic local update for immediate UI feedback
-    setShowState(prev => ({ ...prev, ...payload }));
+      return updatedState;
+    });
   }, [isAdmin]);
 
   return (
