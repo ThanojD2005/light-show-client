@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
+import parser from 'socket.io-msgpack-parser';
 
 // Define the initial show state
 const initialShowState = {
@@ -19,8 +20,8 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
   const socketRef = useRef(null);
 
   useEffect(() => {
-    // Initialize Socket.io connection
-    socketRef.current = io(SOCKET_SERVER_URL);
+    // Initialize Socket.io connection with binary parser for efficiency
+    socketRef.current = io(SOCKET_SERVER_URL, { parser });
 
     socketRef.current.on('connect', () => {
       console.log('Connected to show server');
@@ -44,15 +45,28 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
     if (!isAdmin) return;
 
     setShowState((prevState) => {
+      // Calculate delta to avoid sending redundant data
+      const changes = {};
+      Object.keys(newStateUpdates).forEach(key => {
+        if (newStateUpdates[key] !== prevState[key]) {
+          changes[key] = newStateUpdates[key];
+        }
+      });
+
+      if (Object.keys(changes).length === 0 && !newStateUpdates.id) return prevState;
+
       const updatedState = {
         ...prevState,
         ...newStateUpdates,
-        id: Date.now() // Always bump ID to ensure audience reacts even to identical payload
+        id: Date.now()
       };
 
-      // Send to server
+      // Send only the updates (delta) to the server
       if (socketRef.current) {
-        socketRef.current.emit('ADMIN_UPDATE', updatedState);
+        socketRef.current.emit('ADMIN_UPDATE', {
+          ...changes,
+          id: updatedState.id
+        });
       }
 
       return updatedState;

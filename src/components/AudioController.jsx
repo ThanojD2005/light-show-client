@@ -179,8 +179,12 @@ const AudioController = () => {
 
     const onPatternEvent = useCallback((event) => {
         if (!showState.isActive) return;
-        triggerStateUpdate({ color: event.color, effect: event.effect, id: Date.now() });
-        setTimeout(() => { triggerStateUpdate({ effect: 'none', id: Date.now() + 1 }); }, 150);
+        // Optimization: Send duration (150ms) instead of a second "OFF" message
+        triggerStateUpdate({
+            color: event.color,
+            effect: event.effect,
+            duration: 150
+        });
     }, [showState.isActive, triggerStateUpdate]);
 
     const useCustomScript = mode === 'custom' && !!savedScript;

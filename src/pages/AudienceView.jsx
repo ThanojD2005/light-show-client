@@ -12,21 +12,34 @@ const AudienceView = () => {
         return () => clearTimeout(t);
     }, []);
 
+    const [localEffect, setLocalEffect] = useState('none');
+
     useEffect(() => {
         if (showState.isActive && showState.color) {
             setLocalColor(showState.color);
+            setLocalEffect(showState.effect || 'none');
+
+            // Optimization: If a duration is provided, reset the effect locally after that time
+            // This allows the server to avoid sending an "OFF" message
+            if (showState.duration) {
+                const timer = setTimeout(() => {
+                    setLocalEffect('none');
+                }, showState.duration);
+                return () => clearTimeout(timer);
+            }
         } else {
             setLocalColor('#000000');
+            setLocalEffect('none');
         }
-    }, [showState.isActive, showState.color, showState.id]);
+    }, [showState.isActive, showState.color, showState.id, showState.duration, showState.effect]);
 
     const getContainerClasses = () => {
         let classes = 'min-h-screen w-full flex flex-col items-center justify-center transition-colors duration-[150ms] overflow-hidden fixed inset-0';
 
         if (showState.isActive) {
-            if (showState.effect === 'strobe') {
+            if (localEffect === 'strobe') {
                 classes += ' animate-strobe';
-            } else if (showState.effect === 'pulse') {
+            } else if (localEffect === 'pulse') {
                 classes += ' animate-pulse-fast';
             }
         }
