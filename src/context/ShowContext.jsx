@@ -13,7 +13,8 @@ const ShowContext = createContext(null);
 
 const SOCKET_SERVER_URL = import.meta.env.VITE_SOCKET_URL || 'http://localhost:3001';
 
-export const ShowProvider = ({ children, isAdmin = false }) => {
+// Provider Component
+export function ShowProvider({ children, isAdmin = false }) {
   const [showState, setShowState] = useState(initialShowState);
   const socketRef = useRef(null);
 
@@ -21,7 +22,11 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
     socketRef.current = io(SOCKET_SERVER_URL);
 
     socketRef.current.on('connect', () => {
-      console.log('Connected to show server');
+      console.log('✅ Connected to show server');
+    });
+
+    socketRef.current.on('connect_error', (err) => {
+      console.error('❌ Socket Connection Error:', err.message);
     });
 
     socketRef.current.on('SHOW_STATE_UPDATE', (updatedState) => {
@@ -36,20 +41,17 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
   }, []);
 
   const triggerStateUpdate = useCallback((newStateUpdates) => {
-    if (!isAdmin) return;
+    if (!isAdmin || !socketRef.current) return;
 
-    setShowState((prevState) => {
-      const updatedState = {
-        ...prevState,
+    setShowState((prev) => {
+      const updated = {
+        ...prev,
         ...newStateUpdates,
         id: Date.now()
       };
 
-      if (socketRef.current) {
-        socketRef.current.emit('ADMIN_UPDATE', updatedState);
-      }
-
-      return updatedState;
+      socketRef.current.emit('ADMIN_UPDATE', updated);
+      return updated;
     });
   }, [isAdmin]);
 
@@ -58,12 +60,13 @@ export const ShowProvider = ({ children, isAdmin = false }) => {
       {children}
     </ShowContext.Provider>
   );
-};
+}
 
-export const useShow = () => {
+// Hook
+export function useShow() {
   const context = useContext(ShowContext);
   if (!context) {
     throw new Error('useShow must be used within a ShowProvider');
   }
   return context;
-};
+}
